@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react'
-import { expect, userEvent, within } from '@storybook/test'
+import { expect, userEvent, within } from 'storybook/test'
 import { MessageInput } from './MessageInput'
 
 const meta: Meta<typeof MessageInput> = {
