@@ -22,21 +22,22 @@ test.describe('Authentication', () => {
 
     await page.goto('/sign-in')
     await page.click('button[type="submit"]')
-    await page.waitForURL(/realms\/kalehub/)
+    await page.waitForURL(/realms\/kalehub/, { timeout: 15_000 })
 
-    // Switch to the Keycloak registration form
-    await page.click('a[href*="register"]')
-    await page.waitForURL(/registration/)
+    // Keycloak 26 login page — "Register" link text is reliable across themes
+    await page.getByText('Register', { exact: true }).click({ timeout: 15_000 })
+    await page.waitForURL(/registration/, { timeout: 10_000 })
 
     await page.fill('input[name="firstName"]', 'E2E')
     await page.fill('input[name="lastName"]', 'User')
-    await page.fill('input[name="email"], input[name="username"]', email)
+    // Keycloak uses email as username when registrationEmailAsUsername=true
+    await page.fill('input[name="email"]', email)
     await page.fill('input[name="password"]', password)
     await page.fill('input[name="password-confirm"]', password)
-    await page.click('input[type="submit"], button[type="submit"]')
+    await page.getByRole('button', { name: /register/i }).click()
 
     // After registration, Keycloak redirects back through Auth.js to the app root
-    await expect(page).toHaveURL('/', { timeout: 15_000 })
+    await expect(page).toHaveURL('/', { timeout: 20_000 })
     // The chat layout's sidebar should be visible
     await expect(page.locator('h1', { hasText: 'Kalehub' })).toBeVisible()
   })

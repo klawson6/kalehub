@@ -5,6 +5,7 @@ services:
       - ./apps/api/src:/app/apps/api/src
       - ./packages/types/src:/app/packages/types/src
       - ./packages/db/src:/app/packages/db/src
+      - /app/packages/db/src/generated  # preserve Linux engine binary generated during image build
       - ./packages/db/prisma:/app/packages/db/prisma
 
   ws:
@@ -12,12 +13,16 @@ services:
       - ./apps/ws/src:/app/apps/ws/src
       - ./packages/types/src:/app/packages/types/src
       - ./packages/db/src:/app/packages/db/src
+      - /app/packages/db/src/generated  # preserve Linux engine binary generated during image build
       - ./packages/db/prisma:/app/packages/db/prisma
 
   web:
     volumes:
       - ./apps/web:/app/apps/web
       - ./packages/types/src:/app/packages/types/src
+      - ./packages/db/src:/app/packages/db/src
+      - /app/packages/db/src/generated  # preserve Linux engine binary generated during image build
+      - ./packages/db/prisma:/app/packages/db/prisma
       # Exclude generated files from bind mount
       - /app/apps/web/.next
       - /app/apps/web/node_modules

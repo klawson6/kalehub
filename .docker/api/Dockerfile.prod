@@ -1,12 +1,14 @@
 FROM node:24-alpine AS base
+RUN apk add --no-cache python3 make g++
 RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
 
 # ─── deps: install all dependencies ─────────────────────────────────────────
 FROM base AS deps
 WORKDIR /app
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml tsconfig.base.json ./
 COPY packages/types/package.json ./packages/types/
 COPY packages/db/package.json ./packages/db/
+COPY packages/db/prisma ./packages/db/prisma
 COPY apps/api/package.json ./apps/api/
 RUN pnpm install --frozen-lockfile
 
@@ -27,7 +29,6 @@ RUN pnpm --filter api test:unit
 
 # ─── runner: minimal production image ────────────────────────────────────────
 FROM node:24-alpine AS runner
-RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
 WORKDIR /app
 
 RUN addgroup --system --gid 1001 nodejs && \

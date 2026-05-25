@@ -1,10 +1,14 @@
 FROM node:24-alpine AS base
+RUN apk add --no-cache python3 make g++
 RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
 WORKDIR /app
 
-COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml tsconfig.base.json ./
 COPY packages/types/package.json ./packages/types/
+COPY packages/types/tsconfig.json ./packages/types/
 COPY packages/db/package.json ./packages/db/
+COPY packages/db/tsconfig.json ./packages/db/
+COPY packages/db/prisma ./packages/db/prisma
 COPY apps/ws/package.json ./apps/ws/
 
 RUN pnpm install --frozen-lockfile
@@ -12,4 +16,4 @@ RUN pnpm install --frozen-lockfile
 ENV PORT=3002
 EXPOSE 3002
 
-CMD ["pnpm", "--filter", "ws", "dev"]
+CMD ["sh", "-c", "pnpm --filter @kalehub/types build && pnpm --filter @kalehub/db build && pnpm --filter ws dev"]

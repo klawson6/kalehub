@@ -11,19 +11,19 @@ async function registerAndSignIn(
   const page = await context.newPage()
   await page.goto(`${baseURL}/sign-in`)
   await page.click('button[type="submit"]')
-  await page.waitForURL(/realms\/kalehub/)
+  await page.waitForURL(/realms\/kalehub/, { timeout: 15_000 })
 
-  await page.click('a[href*="register"]')
-  await page.waitForURL(/registration/)
+  await page.getByText('Register', { exact: true }).click({ timeout: 15_000 })
+  await page.waitForURL(/registration/, { timeout: 10_000 })
 
   await page.fill('input[name="firstName"]', 'Test')
   await page.fill('input[name="lastName"]', 'User')
-  await page.fill('input[name="email"], input[name="username"]', email)
+  await page.fill('input[name="email"]', email)
   await page.fill('input[name="password"]', password)
   await page.fill('input[name="password-confirm"]', password)
-  await page.click('input[type="submit"], button[type="submit"]')
+  await page.getByRole('button', { name: /register/i }).click()
 
-  await page.waitForURL(`${baseURL}/`, { timeout: 15_000 })
+  await page.waitForURL(`${baseURL}/`, { timeout: 20_000 })
   await page.close()
 }
 
