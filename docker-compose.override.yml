@@ -1,0 +1,23 @@
+# Dev overrides: bind-mount source directories for hot reload
+services:
+  api:
+    volumes:
+      - ./apps/api/src:/app/apps/api/src
+      - ./packages/types/src:/app/packages/types/src
+      - ./packages/db/src:/app/packages/db/src
+      - ./packages/db/prisma:/app/packages/db/prisma
+
+  ws:
+    volumes:
+      - ./apps/ws/src:/app/apps/ws/src
+      - ./packages/types/src:/app/packages/types/src
+      - ./packages/db/src:/app/packages/db/src
+      - ./packages/db/prisma:/app/packages/db/prisma
+
+  web:
+    volumes:
+      - ./apps/web:/app/apps/web
+      - ./packages/types/src:/app/packages/types/src
+      # Exclude generated files from bind mount
+      - /app/apps/web/.next
+      - /app/apps/web/node_modules

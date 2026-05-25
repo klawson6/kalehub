@@ -1,0 +1,14 @@
+FROM node:24-alpine AS base
+RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
+WORKDIR /app
+
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY packages/types/package.json ./packages/types/
+COPY apps/web/package.json ./apps/web/
+
+RUN pnpm install --frozen-lockfile
+
+ENV PORT=3000
+EXPOSE 3000
+
+CMD ["pnpm", "--filter", "web", "dev"]

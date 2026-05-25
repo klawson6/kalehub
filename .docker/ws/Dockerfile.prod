@@ -1,0 +1,46 @@
+FROM node:24-alpine AS base
+RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
+
+# ─── deps ─────────────────────────────────────────────────────────────────────
+FROM base AS deps
+WORKDIR /app
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY packages/types/package.json ./packages/types/
+COPY packages/db/package.json ./packages/db/
+COPY apps/ws/package.json ./apps/ws/
+RUN pnpm install --frozen-lockfile
+
+# ─── builder ──────────────────────────────────────────────────────────────────
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app ./
+COPY packages/types ./packages/types
+COPY packages/db ./packages/db
+COPY apps/ws ./apps/ws
+RUN pnpm --filter @kalehub/types build
+RUN pnpm --filter @kalehub/db build
+RUN pnpm --filter ws build
+
+# ─── tester ───────────────────────────────────────────────────────────────────
+FROM builder AS tester
+RUN pnpm --filter ws test:unit
+
+# ─── runner ───────────────────────────────────────────────────────────────────
+FROM node:24-alpine AS runner
+RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
+WORKDIR /app
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 appuser
+
+COPY --from=builder --chown=appuser:nodejs /app/apps/ws/dist ./apps/ws/dist
+COPY --from=builder --chown=appuser:nodejs /app/packages/types/dist ./packages/types/dist
+COPY --from=builder --chown=appuser:nodejs /app/packages/db/dist ./packages/db/dist
+COPY --from=deps --chown=appuser:nodejs /app/node_modules ./node_modules
+COPY --from=deps --chown=appuser:nodejs /app/apps/ws/node_modules ./apps/ws/node_modules
+
+USER appuser
+ENV PORT=3002 NODE_ENV=production
+EXPOSE 3002
+
+CMD ["node", "apps/ws/dist/index.js"]

@@ -1,0 +1,24 @@
+{
+  "name": "kalehub",
+  "version": "0.0.1",
+  "private": true,
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=11"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "test:unit": "turbo run test:unit",
+    "db:generate": "pnpm --filter @kalehub/db exec prisma generate",
+    "db:migrate": "pnpm --filter @kalehub/db exec prisma migrate dev",
+    "db:studio": "pnpm --filter @kalehub/db exec prisma studio"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4",
+    "typescript": "^5.8.3"
+  },
+  "packageManager": "pnpm@11.3.0"
+}

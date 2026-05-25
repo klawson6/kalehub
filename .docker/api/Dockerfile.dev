@@ -1,0 +1,17 @@
+FROM node:24-alpine AS base
+RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
+WORKDIR /app
+
+# Copy manifests for workspace resolution (source is bind-mounted at runtime)
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY packages/types/package.json ./packages/types/
+COPY packages/db/package.json ./packages/db/
+COPY apps/api/package.json ./apps/api/
+
+RUN pnpm install --frozen-lockfile
+
+# Source directories are bind-mounted via docker-compose.override.yml
+ENV PORT=3001
+EXPOSE 3001
+
+CMD ["pnpm", "--filter", "api", "dev"]

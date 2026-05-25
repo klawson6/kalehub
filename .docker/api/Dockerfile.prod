@@ -1,0 +1,48 @@
+FROM node:24-alpine AS base
+RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
+
+# ─── deps: install all dependencies ─────────────────────────────────────────
+FROM base AS deps
+WORKDIR /app
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY packages/types/package.json ./packages/types/
+COPY packages/db/package.json ./packages/db/
+COPY apps/api/package.json ./apps/api/
+RUN pnpm install --frozen-lockfile
+
+# ─── builder: compile TypeScript ─────────────────────────────────────────────
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app ./
+COPY packages/types ./packages/types
+COPY packages/db ./packages/db
+COPY apps/api ./apps/api
+RUN pnpm --filter @kalehub/types build
+RUN pnpm --filter @kalehub/db build
+RUN pnpm --filter api build
+
+# ─── tester: run unit tests (CI builds to this target) ───────────────────────
+FROM builder AS tester
+RUN pnpm --filter api test:unit
+
+# ─── runner: minimal production image ────────────────────────────────────────
+FROM node:24-alpine AS runner
+RUN corepack enable && corepack prepare pnpm@11.3.0 --activate
+WORKDIR /app
+
+RUN addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 appuser
+
+COPY --from=builder --chown=appuser:nodejs /app/apps/api/dist ./apps/api/dist
+COPY --from=builder --chown=appuser:nodejs /app/packages/types/dist ./packages/types/dist
+COPY --from=builder --chown=appuser:nodejs /app/packages/db/dist ./packages/db/dist
+COPY --from=builder --chown=appuser:nodejs /app/packages/db/prisma ./packages/db/prisma
+COPY --from=deps --chown=appuser:nodejs /app/node_modules ./node_modules
+COPY --from=deps --chown=appuser:nodejs /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=deps --chown=appuser:nodejs /app/packages/db/node_modules ./packages/db/node_modules
+
+USER appuser
+ENV PORT=3001 NODE_ENV=production
+EXPOSE 3001
+
+CMD ["node", "apps/api/dist/index.js"]
