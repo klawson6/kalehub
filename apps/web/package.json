@@ -9,9 +9,9 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
-    "build-storybook": "storybook build",
-    "test-storybook": "test-storybook",
-    "test:e2e": "docker compose --profile e2e run --rm playwright"
+    "storybook": "storybook dev -p 6006",
+    "storybook:build": "storybook build",
+    "test:storybook": "test-storybook"
   },
   "dependencies": {
     "@auth/core": "0.41.2",

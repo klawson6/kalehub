@@ -12,6 +12,10 @@
     "test:unit": {
       "dependsOn": ["^build"]
     },
+    "storybook:build": {
+      "dependsOn": ["^build"],
+      "outputs": ["storybook-static/**"]
+    },
     "dev": {
       "cache": false,
       "persistent": true

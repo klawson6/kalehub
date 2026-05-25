@@ -12,6 +12,12 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test:unit": "turbo run test:unit",
+    "test:e2e": "docker compose --profile e2e run --rm playwright",
+    "test:storybook": "pnpm --filter web test:storybook",
+    "storybook": "pnpm --filter web storybook",
+    "docker:up": "docker compose up",
+    "docker:build": "docker compose up --build",
+    "docker:down": "docker compose down",
     "db:generate": "pnpm --filter @kalehub/db exec prisma generate",
     "db:migrate": "pnpm --filter @kalehub/db exec prisma migrate dev",
     "db:studio": "pnpm --filter @kalehub/db exec prisma studio"
