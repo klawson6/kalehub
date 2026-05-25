@@ -13,7 +13,10 @@
     "test-storybook": "test-storybook"
   },
   "dependencies": {
+    "@auth/core": "0.41.2",
+    "@kalehub/db": "workspace:*",
     "@kalehub/types": "workspace:*",
+    "jose": "^5.10.0",
     "next": "^15.3.2",
     "next-auth": "^5.0.0-beta.28",
     "react": "^19.1.0",

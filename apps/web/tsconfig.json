@@ -19,13 +19,14 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./*"
-      ]
+      "@/*": ["./*"],
+      "next-auth/lib": ["./node_modules/next-auth/lib"],
+      "next-auth/lib/types": ["./node_modules/next-auth/lib/types"]
     },
     "noEmit": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "preserveSymlinks": true
   },
   "include": [
     "next-env.d.ts",

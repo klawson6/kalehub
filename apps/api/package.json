@@ -16,6 +16,7 @@
     "@kalehub/db": "workspace:*",
     "@kalehub/types": "workspace:*",
     "fastify": "^5.4.0",
+    "fastify-plugin": "^5.0.1",
     "ioredis": "^5.6.1",
     "jose": "^5.10.0"
   },

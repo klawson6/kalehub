@@ -96,7 +96,11 @@ services:
       AUTH_SECRET: ${AUTH_SECRET}
       KEYCLOAK_CLIENT_ID: ${KEYCLOAK_CLIENT_ID}
       KEYCLOAK_CLIENT_SECRET: ${KEYCLOAK_CLIENT_SECRET}
+      # External issuer — matches the iss claim in Keycloak tokens (KC_HOSTNAME=localhost)
       KEYCLOAK_ISSUER: ${KEYCLOAK_ISSUER}
+      # Internal Docker hostname — used by Auth.js for server-side token exchange
+      KEYCLOAK_INTERNAL_URL: http://keycloak:8080/realms/kalehub
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
       NEXT_PUBLIC_WS_URL: ${NEXT_PUBLIC_WS_URL}
       NODE_ENV: development
@@ -105,6 +109,7 @@ services:
     depends_on:
       - api
       - keycloak
+      - postgres
 
 volumes:
   postgres_data:
