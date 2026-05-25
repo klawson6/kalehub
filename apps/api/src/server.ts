@@ -1,8 +1,11 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
+import { serializerCompiler, validatorCompiler } from '@fastify/type-provider-zod'
 import jwtPlugin from './plugins/jwt.js'
+import redisPlugin from './plugins/redis.js'
 import userRoutes from './domains/user/user.routes.js'
 import conversationRoutes from './domains/conversation/conversation.routes.js'
+import messageRoutes from './domains/message/message.routes.js'
 import { NotFoundError, ForbiddenError, ConflictError } from './shared/errors.js'
 
 export function buildServer() {
@@ -12,12 +15,16 @@ export function buildServer() {
     },
   })
 
+  app.setValidatorCompiler(validatorCompiler)
+  app.setSerializerCompiler(serializerCompiler)
+
   app.register(cors, {
     origin: process.env['WEB_URL'] ?? 'http://localhost:3000',
     credentials: true,
   })
 
   app.register(jwtPlugin)
+  app.register(redisPlugin)
 
   app.setErrorHandler((error, _request, reply) => {
     if (
@@ -35,6 +42,7 @@ export function buildServer() {
 
   app.register(userRoutes)
   app.register(conversationRoutes)
+  app.register(messageRoutes)
 
   return app
 }
