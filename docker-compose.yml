@@ -111,6 +111,25 @@ services:
       - keycloak
       - postgres
 
+  # E2E test runner — Playwright with Chromium bundled (no local browser install needed).
+  # Usage:  docker compose --profile e2e run --rm playwright
+  #
+  # Linux / CI: network_mode: host lets localhost:3000/8080 reach the host's port-mapped services.
+  # Mac local:  comment out network_mode, uncomment extra_hosts, and set
+  #             PLAYWRIGHT_BASE_URL=http://host.docker.internal:3000
+  playwright:
+    build:
+      context: .
+      dockerfile: .docker/web/Dockerfile.e2e
+    profiles: [e2e]
+    network_mode: host
+    # extra_hosts:                               # Mac alternative to network_mode: host
+    #   - "host.docker.internal:host-gateway"
+    environment:
+      PLAYWRIGHT_BASE_URL: ${PLAYWRIGHT_BASE_URL:-http://localhost:3000}
+      PLAYWRIGHT_API_URL: ${PLAYWRIGHT_API_URL:-http://localhost:3001}
+      CI: ${CI:-}
+
 volumes:
   postgres_data:
   redis_data:

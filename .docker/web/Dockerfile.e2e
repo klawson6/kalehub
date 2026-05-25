@@ -1,0 +1,22 @@
+# Playwright E2E image — all browser deps included, no local install needed.
+# Run with: docker compose --profile e2e run --rm playwright
+#
+# Network topology:
+#   Linux / CI:  network_mode: host  →  localhost:3000 == host port 3000 (web)
+#   Mac local:   use extra_hosts "host.docker.internal:host-gateway" and set
+#                PLAYWRIGHT_BASE_URL=http://host.docker.internal:3000
+FROM mcr.microsoft.com/playwright:v1.52.0-noble
+
+WORKDIR /e2e
+
+# Install only the e2e test dependencies (not the full app)
+COPY apps/web/package.json ./package.json
+RUN npm install --ignore-scripts @playwright/test 2>/dev/null; \
+    npx playwright install chromium --with-deps
+
+COPY apps/web/e2e ./
+
+ENV PLAYWRIGHT_BASE_URL=http://localhost:3000
+ENV PLAYWRIGHT_API_URL=http://localhost:3001
+
+CMD ["npx", "playwright", "test", "--config", "playwright.config.ts", "--project", "chromium"]

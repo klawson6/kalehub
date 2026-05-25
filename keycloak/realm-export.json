@@ -22,11 +22,13 @@
       "serviceAccountsEnabled": false,
       "redirectUris": [
         "http://localhost:3000/*",
-        "http://web:3000/*"
+        "http://web:3000/*",
+        "http://host.docker.internal:3000/*"
       ],
       "webOrigins": [
         "http://localhost:3000",
-        "http://web:3000"
+        "http://web:3000",
+        "http://host.docker.internal:3000"
       ],
       "attributes": {
         "pkce.code.challenge.method": "S256"
