@@ -1,7 +1,7 @@
 import type { NextAuthConfig } from 'next-auth';
+import { env } from '@/env';
 
-const issuer = process.env.KEYCLOAK_ISSUER!;
-const internalBase = process.env.KEYCLOAK_INTERNAL_URL ?? issuer;
+const internalBase = env.KEYCLOAK_INTERNAL_URL ?? env.KEYCLOAK_ISSUER;
 
 // Edge-compatible config — no Node.js-only imports (no Prisma).
 // Used directly by middleware and extended by lib/auth.ts.
@@ -17,13 +17,13 @@ export const authConfig: NextAuthConfig = {
       id: 'keycloak',
       name: 'Keycloak',
       type: 'oauth',
-      clientId: process.env.KEYCLOAK_CLIENT_ID!,
-      clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
+      clientId: env.KEYCLOAK_CLIENT_ID,
+      clientSecret: env.KEYCLOAK_CLIENT_SECRET,
       // issuer allows oauth4webapi to validate the `iss` parameter Keycloak 26 appends
       // to the callback URL per RFC 9207. Must match KC_HOSTNAME=localhost.
-      issuer: process.env.KEYCLOAK_ISSUER!,
+      issuer: env.KEYCLOAK_ISSUER,
       authorization: {
-        url: `${issuer}/protocol/openid-connect/auth`,
+        url: `${env.KEYCLOAK_ISSUER}/protocol/openid-connect/auth`,
         params: { scope: 'openid email profile', response_type: 'code' },
       },
       token: `${internalBase}/protocol/openid-connect/token`,

@@ -14,11 +14,11 @@ pnpm build
 # Type-check all packages
 pnpm typecheck
 
-# Lint + format all packages (Biome)
+# Check all packages (lint + formatting via Biome)
 pnpm lint
 
-# Auto-fix formatting and safe lint issues
-pnpm format
+# Auto-fix safe lint and formatting issues
+pnpm lint:fix
 
 # Auto-fix including unsafe transforms (e.g. bracket → dot notation)
 pnpm exec biome check --write --unsafe .
@@ -84,12 +84,69 @@ Domain errors (`NotFoundError`, `ForbiddenError`, `ConflictError`) are defined i
 
 Dev Dockerfiles (`Dockerfile.dev`) install deps and start services in watch mode. Source is bind-mounted via `docker-compose.override.yml` — no rebuild needed for code changes.
 
-Prod Dockerfiles (`Dockerfile.prod`) use four stages: `deps` → `builder` → `tester` → `runner`. Unit tests run in the `tester` stage; CI builds to that target so a test failure fails the build. The `runner` stage is a minimal Alpine image with a non-root `appuser`.
+Prod Dockerfiles (`Dockerfile.prod`) use five stages: `deps` → `builder` → `tester` → `prod-deps` → `runner`. Unit tests run in the `tester` stage; CI builds to that target so a test failure fails the build. The `prod-deps` stage reinstalls only production dependencies (no devDeps). The `runner` stage is a minimal Alpine image with a non-root `appuser`.
 
 ### Turborepo task graph
 
 `build` and `typecheck` depend on `^build` (dependencies build first). `lint` has no `dependsOn` and runs fully in parallel. Always run Turbo commands from the repo root — running `tsc` directly in a package may fail if `packages/types` or `packages/db` haven't been built yet.
 
-### Key env vars
+### Environment variables
 
-`AUTH_SECRET` must be identical across `web`, `api`, and `ws` — this is the signing key for session JWTs. `KEYCLOAK_CLIENT_SECRET` matches the secret in `keycloak/realm-export.json` (dev value: `dev-secret-changeme-in-env`). `DATABASE_URL` is needed by `api` and `packages/db` (not `ws`).
+**Local development** — copy `.env.example` to `.env` and fill in values. Docker Compose reads `.env` automatically. When running apps natively (`pnpm dev`) alongside `docker compose up postgres redis keycloak`, the apps also read from `.env` via their own process environment.
+
+**In containers** — Docker Compose injects vars from `.env` into each service and adds hardcoded overrides for internal Docker networking (e.g. `REDIS_URL: redis://redis:6379`, `API_URL: http://api:3001`). These overrides replace the localhost defaults that apply during native development.
+
+---
+
+**`apps/api`**
+
+| Var | Required | Default | Notes |
+|---|---|---|---|
+| `AUTH_SECRET` | yes | — | Must match `ws` and `web` |
+| `DATABASE_URL` | yes | — | Postgres connection string |
+| `REDIS_URL` | no | `redis://localhost:6379` | Redis connection string |
+| `WEB_URL` | no | `http://localhost:3000` | CORS allowed origin |
+| `PORT` | no | `3001` | Listen port |
+| `HOST` | no | `0.0.0.0` | Bind address |
+| `LOG_LEVEL` | no | `info` | Fastify log level |
+
+---
+
+**`apps/ws`**
+
+| Var | Required | Default | Notes |
+|---|---|---|---|
+| `AUTH_SECRET` | yes | — | Must match `api` and `web` |
+| `DATABASE_URL` | yes | — | Read by Prisma client at startup |
+| `REDIS_URL` | no | `redis://localhost:6379` | Redis connection string |
+| `WEB_URL` | no | `http://localhost:3000` | CORS allowed origin |
+| `PORT` | no | `3002` | Listen port |
+| `HOST` | no | `0.0.0.0` | Bind address |
+
+---
+
+**`apps/web`**
+
+Web has two classes of env var. **Server-side** vars are only ever present in the Node.js runtime (server components, API routes, Auth.js callbacks) and are never sent to the browser. **Client-side** (`NEXT_PUBLIC_`) vars are inlined into the browser bundle at build time by Next.js — treat them as public.
+
+All vars are validated at startup via `apps/web/env.ts` (`@t3-oss/env-nextjs`). Missing required vars throw immediately with a clear error. `SKIP_ENV_VALIDATION=1` bypasses this during `next build` (set in `Dockerfile.prod` builder stage where secrets are unavailable).
+
+*Server-side only:*
+
+| Var | Required | Default | Notes |
+|---|---|---|---|
+| `AUTH_SECRET` | yes | — | Must match `api` and `ws` |
+| `KEYCLOAK_ISSUER` | yes | — | External realm URL; used by the browser OAuth redirect and `iss` claim verification |
+| `KEYCLOAK_CLIENT_ID` | yes | — | OAuth client ID |
+| `KEYCLOAK_CLIENT_SECRET` | yes | — | OAuth client secret; matches `keycloak/realm-export.json` |
+| `KEYCLOAK_INTERNAL_URL` | no | `KEYCLOAK_ISSUER` | Docker-internal Keycloak URL for server-side token exchange; set to `http://keycloak:8080/realms/kalehub` in containers so the web container doesn't try to reach `localhost:8080` |
+| `API_URL` | no | `http://localhost:3001` | Internal URL for RSC server-side fetches; set to `http://api:3001` in containers |
+| `DATABASE_URL` | yes | — | Read by Prisma in Auth.js `jwt` callback to upsert users |
+| `NEXTAUTH_URL` | yes | — | Auth.js callback base URL |
+
+*Client-side (inlined at build time, visible in the browser):*
+
+| Var | Required | Default | Notes |
+|---|---|---|---|
+| `NEXT_PUBLIC_API_URL` | no | `http://localhost:3001` | Public API URL used by browser fetch in client components |
+| `NEXT_PUBLIC_WS_URL` | no | `http://localhost:3002` | Socket.io server URL used by the browser |

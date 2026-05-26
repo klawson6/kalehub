@@ -13,7 +13,7 @@ WORKDIR /e2e
 
 # Minimal package.json with only @playwright/test — avoids workspace:* dep issues
 # when npm tries to resolve the full apps/web/package.json.
-RUN echo '{"private":true,"dependencies":{"@playwright/test":"^1.60.0"}}' > package.json && \
+RUN echo '{"private":true,"dependencies":{"@playwright/test":"1.60.0"}}' > package.json && \
     npm install && \
     npx playwright install --with-deps chromium
 

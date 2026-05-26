@@ -13,7 +13,7 @@ async function registerAndSignIn(
   await page.click('button[type="submit"]');
   await page.waitForURL(/realms\/kalehub/, { timeout: 15_000 });
 
-  await page.getByText('Register', { exact: true }).click({ timeout: 15_000 });
+  await page.locator('a[href*="registration"]').click({ timeout: 15_000 });
   await page.waitForURL(/registration/, { timeout: 10_000 });
 
   await page.fill('input[name="firstName"]', 'Test');

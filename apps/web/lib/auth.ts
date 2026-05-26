@@ -2,9 +2,10 @@ import { prisma } from '@kalehub/db';
 import { SignJWT } from 'jose';
 import type { NextAuthResult, Session } from 'next-auth';
 import NextAuth from 'next-auth';
+import { env } from '@/env';
 import { authConfig } from './auth.config';
 
-const secret = new TextEncoder().encode(process.env.AUTH_SECRET ?? '');
+const secret = new TextEncoder().encode(env.AUTH_SECRET);
 
 const {
   handlers,
@@ -16,12 +17,14 @@ const {
   callbacks: {
     async jwt({ token, profile }) {
       if (profile) {
+        const email = profile.email;
+        if (!email) throw new Error('Keycloak profile is missing required field: email');
         const user = await prisma.user.upsert({
           where: { keycloakId: profile.sub as string },
-          update: { email: profile.email!, name: (profile.name as string | undefined) ?? null },
+          update: { email, name: (profile.name as string | undefined) ?? null },
           create: {
             keycloakId: profile.sub as string,
-            email: profile.email!,
+            email,
             name: (profile.name as string | undefined) ?? null,
           },
         });

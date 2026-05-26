@@ -15,8 +15,8 @@ export function useSocket(token: string): AppSocket {
   }
 
   useEffect(() => {
-    const s = socketRef.current!;
-    if (!s.connected) s.connect();
+    const s = socketRef.current;
+    if (s && !s.connected) s.connect();
 
     return () => {
       disconnectSocket();
