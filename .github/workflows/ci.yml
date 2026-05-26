@@ -6,10 +6,6 @@ on:
   pull_request:
     branches: [main]
 
-env:
-  REGISTRY: ghcr.io
-  IMAGE_PREFIX: ${{ github.repository_owner }}/kalehub
-
 jobs:
   # ── Docker image builds (run unit tests inside tester stage) ──────────────────
   build-api:
