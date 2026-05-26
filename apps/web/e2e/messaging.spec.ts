@@ -1,4 +1,5 @@
 import { type BrowserContext, expect, test } from '@playwright/test';
+import { createKeycloakUser } from './helpers';
 
 const baseURL = process.env.PLAYWRIGHT_BASE_URL ?? 'http://localhost:3000';
 const apiURL = process.env.PLAYWRIGHT_API_URL ?? 'http://localhost:3001';
@@ -8,21 +9,14 @@ async function registerAndSignIn(
   email: string,
   password: string,
 ): Promise<void> {
+  await createKeycloakUser(email, password);
   const page = await context.newPage();
   await page.goto(`${baseURL}/sign-in`);
   await page.click('button[type="submit"]');
   await page.waitForURL(/realms\/kalehub/, { timeout: 15_000 });
-
-  await page.locator('a[href*="registration"]').click({ timeout: 15_000 });
-  await page.waitForURL(/registration/, { timeout: 10_000 });
-
-  await page.fill('input[name="firstName"]', 'Test');
-  await page.fill('input[name="lastName"]', 'User');
-  await page.fill('input[name="email"]', email);
-  await page.fill('input[name="password"]', password);
-  await page.fill('input[name="password-confirm"]', password);
-  await page.getByRole('button', { name: /register/i }).click();
-
+  await page.fill('#username', email);
+  await page.fill('#password', password);
+  await page.click('#kc-login');
   await page.waitForURL(`${baseURL}/`, { timeout: 20_000 });
   await page.close();
 }
