@@ -131,7 +131,7 @@ jobs:
       KEYCLOAK_CLIENT_ID: kalehub-app
       KEYCLOAK_CLIENT_SECRET: dev-secret-changeme-in-env
       KEYCLOAK_ISSUER: http://localhost:8080/realms/kalehub
-      AUTH_SECRET: ci-auth-secret-32-chars-min-here
+      AUTH_SECRET: ci-auth-secret-example
       NEXTAUTH_URL: http://localhost:3000
       NEXT_PUBLIC_API_URL: http://localhost:3001
       NEXT_PUBLIC_WS_URL: http://localhost:3002
