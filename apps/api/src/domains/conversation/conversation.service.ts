@@ -14,6 +14,10 @@ export class ConversationService {
     return this.conversationRepo.findAllForUser(userId)
   }
 
+  async findByIdForUser(id: string, userId: string): Promise<ConversationSummary | null> {
+    return this.conversationRepo.findByIdForUser(id, userId)
+  }
+
   async create(requesterId: string, input: CreateConversationInput): Promise<ConversationSummary> {
     if (requesterId === input.participantId) {
       throw new ConflictError('Cannot create a conversation with yourself')

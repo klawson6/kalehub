@@ -4,10 +4,9 @@ import { ConversationItem } from './ConversationItem'
 const conversation = {
   id: 'conv-1',
   createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
   participants: [
-    { id: 'user-1', email: 'me@example.com', name: 'Me', createdAt: new Date().toISOString() },
-    { id: 'user-2', email: 'alice@example.com', name: 'Alice Smith', createdAt: new Date().toISOString() },
+    { userId: 'user-1', user: { id: 'user-1', email: 'me@example.com', name: 'Me' } },
+    { userId: 'user-2', user: { id: 'user-2', email: 'alice@example.com', name: 'Alice Smith' } },
   ],
 }
 
@@ -29,7 +28,7 @@ export const NoName: Story = {
       ...conversation,
       participants: [
         ...conversation.participants.slice(0, 1),
-        { id: 'user-3', email: 'bob@example.com', name: null, createdAt: new Date().toISOString() },
+        { userId: 'user-3', user: { id: 'user-3', email: 'bob@example.com', name: null } },
       ],
     },
     currentUserId: 'user-1',

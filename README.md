@@ -77,7 +77,7 @@ pnpm db:studio     # Open Prisma Studio
 | ORM | Prisma 6 |
 | WebSocket | Socket.io 4 + `@socket.io/redis-adapter` |
 | Unit/integration tests | Vitest |
-| Component tests | Storybook 8 + `@storybook/test` |
+| Component tests | Storybook 10 + `@storybook/test` |
 | E2E tests | Playwright |
 | CI/CD | GitHub Actions |
 | IaC (future) | Terraform |

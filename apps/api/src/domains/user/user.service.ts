@@ -1,5 +1,5 @@
 import type { User } from '@kalehub/db'
-import type { IUserRepository, } from './user.repository.js'
+import type { IUserRepository } from './user.repository.js'
 import type { UpsertUserInput } from './user.types.js'
 
 export class UserService {

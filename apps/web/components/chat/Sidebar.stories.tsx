@@ -4,10 +4,9 @@ import { Sidebar } from './Sidebar'
 const makeConv = (id: string, name: string) => ({
   id,
   createdAt: new Date().toISOString(),
-  updatedAt: new Date().toISOString(),
   participants: [
-    { id: 'me', email: 'me@example.com', name: 'Me', createdAt: new Date().toISOString() },
-    { id: `other-${id}`, email: `${name.toLowerCase()}@example.com`, name, createdAt: new Date().toISOString() },
+    { userId: 'me', user: { id: 'me', email: 'me@example.com', name: 'Me' } },
+    { userId: `other-${id}`, user: { id: `other-${id}`, email: `${name.toLowerCase()}@example.com`, name } },
   ],
 })
 

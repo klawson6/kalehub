@@ -39,6 +39,7 @@ COPY --from=builder --chown=appuser:nodejs /app/packages/types/dist ./packages/t
 COPY --from=builder --chown=appuser:nodejs /app/packages/db/dist ./packages/db/dist
 COPY --from=deps --chown=appuser:nodejs /app/node_modules ./node_modules
 COPY --from=deps --chown=appuser:nodejs /app/apps/ws/node_modules ./apps/ws/node_modules
+COPY --from=deps --chown=appuser:nodejs /app/packages/db/node_modules ./packages/db/node_modules
 
 USER appuser
 ENV PORT=3002 NODE_ENV=production

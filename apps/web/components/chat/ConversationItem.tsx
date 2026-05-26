@@ -12,7 +12,7 @@ interface Props {
 export function ConversationItem({ conversation, currentUserId }: Props) {
   const pathname = usePathname()
   const active = pathname === `/dm/${conversation.id}`
-  const other = conversation.participants.find((p) => p.id !== currentUserId)
+  const other = conversation.participants.find((p) => p.user.id !== currentUserId)?.user
   const label = other?.name ?? other?.email ?? 'Unknown'
 
   return (

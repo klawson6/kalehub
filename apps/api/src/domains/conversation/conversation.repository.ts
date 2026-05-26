@@ -13,6 +13,7 @@ const participantInclude = {
 export interface IConversationRepository {
   findAllForUser(userId: string): Promise<ConversationSummary[]>
   findById(id: string): Promise<ConversationSummary | null>
+  findByIdForUser(id: string, userId: string): Promise<ConversationSummary | null>
   existsBetween(userId1: string, userId2: string): Promise<boolean>
   create(requesterId: string, participantId: string): Promise<ConversationSummary>
   isParticipant(conversationId: string, userId: string): Promise<boolean>
@@ -30,6 +31,13 @@ export class PrismaConversationRepository implements IConversationRepository {
   async findById(id: string): Promise<ConversationSummary | null> {
     return prisma.conversation.findUnique({
       where: { id },
+      include: participantInclude,
+    })
+  }
+
+  async findByIdForUser(id: string, userId: string): Promise<ConversationSummary | null> {
+    return prisma.conversation.findFirst({
+      where: { id, participants: { some: { userId } } },
       include: participantInclude,
     })
   }

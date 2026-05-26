@@ -27,6 +27,7 @@ function makeRepos() {
   const conversationRepo: IConversationRepository = {
     findAllForUser: vi.fn(),
     findById: vi.fn(),
+    findByIdForUser: vi.fn(),
     existsBetween: vi.fn(),
     create: vi.fn(),
     isParticipant: vi.fn(),
@@ -48,6 +49,26 @@ describe('ConversationService', () => {
     conversationRepo = repos.conversationRepo
     userRepo = repos.userRepo
     service = new ConversationService(conversationRepo, userRepo)
+  })
+
+  describe('findByIdForUser', () => {
+    it('returns the conversation when user is a participant', async () => {
+      const conv = makeConversation()
+      vi.mocked(conversationRepo.findByIdForUser).mockResolvedValue(conv)
+
+      const result = await service.findByIdForUser('conv-1', 'user-a')
+
+      expect(conversationRepo.findByIdForUser).toHaveBeenCalledWith('conv-1', 'user-a')
+      expect(result).toEqual(conv)
+    })
+
+    it('returns null when conversation does not exist or user is not a participant', async () => {
+      vi.mocked(conversationRepo.findByIdForUser).mockResolvedValue(null)
+
+      const result = await service.findByIdForUser('conv-bad', 'user-a')
+
+      expect(result).toBeNull()
+    })
   })
 
   describe('listForUser', () => {

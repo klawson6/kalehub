@@ -34,6 +34,7 @@ function makeRepos() {
   const conversationRepo: IConversationRepository = {
     findAllForUser: vi.fn(),
     findById: vi.fn(),
+    findByIdForUser: vi.fn(),
     existsBetween: vi.fn(),
     create: vi.fn(),
     isParticipant: vi.fn(),

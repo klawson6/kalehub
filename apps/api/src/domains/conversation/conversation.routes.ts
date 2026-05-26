@@ -48,9 +48,7 @@ const conversationRoutes: FastifyPluginAsyncZod = async (fastify) => {
       },
     },
     async (request) => {
-      const conversation = await service.listForUser(request.userId).then((list) =>
-        list.find((c) => c.id === request.params.id),
-      )
+      const conversation = await service.findByIdForUser(request.params.id, request.userId)
       if (!conversation) throw new NotFoundError('Conversation', request.params.id)
       return conversation
     },
