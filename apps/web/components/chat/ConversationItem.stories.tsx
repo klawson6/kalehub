@@ -1,5 +1,5 @@
-import type { Meta, StoryObj } from '@storybook/react'
-import { ConversationItem } from './ConversationItem'
+import type { Meta, StoryObj } from '@storybook/react';
+import { ConversationItem } from './ConversationItem';
 
 const conversation = {
   id: 'conv-1',
@@ -8,19 +8,19 @@ const conversation = {
     { userId: 'user-1', user: { id: 'user-1', email: 'me@example.com', name: 'Me' } },
     { userId: 'user-2', user: { id: 'user-2', email: 'alice@example.com', name: 'Alice Smith' } },
   ],
-}
+};
 
 const meta: Meta<typeof ConversationItem> = {
   component: ConversationItem,
   parameters: { nextjs: { appDirectory: true } },
-}
-export default meta
+};
+export default meta;
 
-type Story = StoryObj<typeof ConversationItem>
+type Story = StoryObj<typeof ConversationItem>;
 
 export const Default: Story = {
   args: { conversation, currentUserId: 'user-1' },
-}
+};
 
 export const NoName: Story = {
   args: {
@@ -33,4 +33,4 @@ export const NoName: Story = {
     },
     currentUserId: 'user-1',
   },
-}
+};

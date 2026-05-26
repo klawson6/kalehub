@@ -14,7 +14,7 @@
   "scripts": {
     "build": "tsc && cp -r src/generated dist/generated",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src",
+    "lint": "biome check",
     "postinstall": "prisma generate"
   },
   "dependencies": {

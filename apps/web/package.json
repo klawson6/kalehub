@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "biome check",
     "typecheck": "tsc --noEmit",
     "test:unit": "vitest run",
     "storybook": "storybook dev -p 6006",

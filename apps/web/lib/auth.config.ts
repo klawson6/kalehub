@@ -1,8 +1,7 @@
-import type { NextAuthConfig } from 'next-auth'
+import type { NextAuthConfig } from 'next-auth';
 
-const issuer = process.env['KEYCLOAK_ISSUER']!
-const internalBase =
-  process.env['KEYCLOAK_INTERNAL_URL'] ?? issuer
+const issuer = process.env.KEYCLOAK_ISSUER!;
+const internalBase = process.env.KEYCLOAK_INTERNAL_URL ?? issuer;
 
 // Edge-compatible config — no Node.js-only imports (no Prisma).
 // Used directly by middleware and extended by lib/auth.ts.
@@ -18,11 +17,11 @@ export const authConfig: NextAuthConfig = {
       id: 'keycloak',
       name: 'Keycloak',
       type: 'oauth',
-      clientId: process.env['KEYCLOAK_CLIENT_ID']!,
-      clientSecret: process.env['KEYCLOAK_CLIENT_SECRET']!,
+      clientId: process.env.KEYCLOAK_CLIENT_ID!,
+      clientSecret: process.env.KEYCLOAK_CLIENT_SECRET!,
       // issuer allows oauth4webapi to validate the `iss` parameter Keycloak 26 appends
       // to the callback URL per RFC 9207. Must match KC_HOSTNAME=localhost.
-      issuer: process.env['KEYCLOAK_ISSUER']!,
+      issuer: process.env.KEYCLOAK_ISSUER!,
       authorization: {
         url: `${issuer}/protocol/openid-connect/auth`,
         params: { scope: 'openid email profile', response_type: 'code' },
@@ -31,24 +30,24 @@ export const authConfig: NextAuthConfig = {
       userinfo: `${internalBase}/protocol/openid-connect/userinfo`,
       profile(profile: Record<string, unknown>) {
         return {
-          id: profile['sub'] as string,
-          name: profile['name'] as string | null ?? null,
-          email: profile['email'] as string,
-          image: (profile['picture'] as string | null) ?? null,
-        }
+          id: profile.sub as string,
+          name: (profile.name as string | null) ?? null,
+          email: profile.email as string,
+          image: (profile.picture as string | null) ?? null,
+        };
       },
       checks: ['pkce', 'state'],
     },
   ],
   callbacks: {
     authorized({ auth }) {
-      return !!auth
+      return !!auth;
     },
     jwt({ token }) {
-      return token
+      return token;
     },
     session({ session }) {
-      return session
+      return session;
     },
   },
-}
+};

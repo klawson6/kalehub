@@ -1,4 +1,4 @@
-import type { NextConfig } from 'next'
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   output: 'standalone',
@@ -8,6 +8,6 @@ const nextConfig: NextConfig = {
   // pnpm internal path resolution; that check doesn't fire in plain `tsc --noEmit`.
   typescript: { ignoreBuildErrors: true },
   eslint: { ignoreDuringBuilds: true },
-}
+};
 
-export default nextConfig
+export default nextConfig;

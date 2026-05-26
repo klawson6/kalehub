@@ -1,20 +1,20 @@
-import type { FastifyPluginAsyncZod } from '@fastify/type-provider-zod'
-import { z } from 'zod'
-import { MessageService } from './message.service.js'
-import { PrismaMessageRepository } from './message.repository.js'
-import { PrismaConversationRepository } from '../conversation/conversation.repository.js'
+import type { FastifyPluginAsyncZod } from '@fastify/type-provider-zod';
+import { z } from 'zod';
+import { PrismaConversationRepository } from '../conversation/conversation.repository.js';
+import { PrismaMessageRepository } from './message.repository.js';
+import { MessageService } from './message.service.js';
 import {
   CreateMessageBody,
-  MessageQuerySchema,
   MessagePageSchema,
+  MessageQuerySchema,
   MessageSchema,
-} from './message.types.js'
+} from './message.types.js';
 
 const messageRoutes: FastifyPluginAsyncZod = async (fastify) => {
   const service = new MessageService(
     new PrismaMessageRepository(),
     new PrismaConversationRepository(),
-  )
+  );
 
   fastify.get(
     '/conversations/:id/messages',
@@ -30,9 +30,9 @@ const messageRoutes: FastifyPluginAsyncZod = async (fastify) => {
       return service.list(request.params.id, request.userId, {
         before: request.query.before,
         limit: request.query.limit,
-      })
+      });
     },
-  )
+  );
 
   fastify.post(
     '/conversations/:id/messages',
@@ -45,11 +45,7 @@ const messageRoutes: FastifyPluginAsyncZod = async (fastify) => {
       },
     },
     async (request, reply) => {
-      const message = await service.create(
-        request.params.id,
-        request.userId,
-        request.body.content,
-      )
+      const message = await service.create(request.params.id, request.userId, request.body.content);
 
       await fastify.redis.publish(
         `conversation:${request.params.id}`,
@@ -60,11 +56,11 @@ const messageRoutes: FastifyPluginAsyncZod = async (fastify) => {
           content: message.content,
           createdAt: message.createdAt.toISOString(),
         }),
-      )
+      );
 
-      return reply.code(201).send(message)
+      return reply.code(201).send(message);
     },
-  )
-}
+  );
+};
 
-export default messageRoutes
+export default messageRoutes;

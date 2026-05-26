@@ -1,5 +1,5 @@
-import { defineConfig } from 'vitest/config'
-import react from '@vitejs/plugin-react'
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   plugins: [react()],
@@ -8,4 +8,4 @@ export default defineConfig({
     include: ['**/*.test.ts', '**/*.test.tsx'],
     exclude: ['e2e/**', 'node_modules/**'],
   },
-})
+});

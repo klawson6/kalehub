@@ -1,24 +1,25 @@
-'use client'
+'use client';
 
-import { useEffect, useRef } from 'react'
-import type { MessageDTO } from '@kalehub/types'
+import type { MessageDTO } from '@kalehub/types';
+import { useEffect, useRef } from 'react';
 
 interface Props {
-  messages: MessageDTO[]
-  currentUserId: string
+  messages: MessageDTO[];
+  currentUserId: string;
 }
 
 export function MessageList({ messages, currentUserId }: Props) {
-  const bottomRef = useRef<HTMLDivElement>(null)
+  const bottomRef = useRef<HTMLDivElement>(null);
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: messages triggers scroll-to-bottom on new message
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   return (
     <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
       {messages.map((msg) => {
-        const isMine = msg.senderId === currentUserId
+        const isMine = msg.senderId === currentUserId;
         return (
           <div key={msg.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'}`}>
             <div
@@ -29,9 +30,7 @@ export function MessageList({ messages, currentUserId }: Props) {
               }`}
             >
               <p>{msg.content}</p>
-              <p
-                className={`text-xs mt-1 ${isMine ? 'text-indigo-200' : 'text-gray-400'}`}
-              >
+              <p className={`text-xs mt-1 ${isMine ? 'text-indigo-200' : 'text-gray-400'}`}>
                 {new Date(msg.createdAt).toLocaleTimeString([], {
                   hour: '2-digit',
                   minute: '2-digit',
@@ -39,9 +38,9 @@ export function MessageList({ messages, currentUserId }: Props) {
               </p>
             </div>
           </div>
-        )
+        );
       })}
       <div ref={bottomRef} />
     </div>
-  )
+  );
 }

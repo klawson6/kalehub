@@ -1,0 +1,154 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_PREFIX: ${{ github.repository_owner }}/kalehub
+
+jobs:
+  # ── Docker image builds (run unit tests inside tester stage) ──────────────────
+  build-api:
+    name: Build API
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build API (runs unit tests in tester stage)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .docker/api/Dockerfile.prod
+          target: tester
+          push: false
+          cache-from: type=gha,scope=api
+          cache-to: type=gha,scope=api,mode=max
+
+  build-ws:
+    name: Build WS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build WS (runs unit tests in tester stage)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .docker/ws/Dockerfile.prod
+          target: tester
+          push: false
+          cache-from: type=gha,scope=ws
+          cache-to: type=gha,scope=ws,mode=max
+
+  build-web:
+    name: Build Web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Build Web (runs unit tests in tester stage)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: .docker/web/Dockerfile.prod
+          target: tester
+          push: false
+          cache-from: type=gha,scope=web
+          cache-to: type=gha,scope=web,mode=max
+
+  # ── Native checks (lint + typecheck run without Docker overhead) ──────────────
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.3.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.3.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build --filter @kalehub/types --filter @kalehub/db
+      - run: pnpm typecheck
+
+  # ── Storybook smoke test ───────────────────────────────────────────────────────
+  test-storybook:
+    name: Storybook Tests
+    runs-on: ubuntu-latest
+    needs: [build-web, typecheck]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.3.0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build --filter @kalehub/types --filter @kalehub/db
+      - name: Build Storybook
+        run: pnpm --filter web storybook:build
+      - name: Run Storybook tests
+        run: |
+          npx concurrently -k -s first -n "SB,TEST" \
+            "npx http-server apps/web/storybook-static --port 6006 --silent" \
+            "npx wait-on http://localhost:6006 && pnpm --filter web test:storybook"
+
+  # ── E2E tests (full stack via Docker Compose) ─────────────────────────────────
+  test-e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [build-api, build-ws, build-web]
+    env:
+      POSTGRES_USER: kalehub
+      POSTGRES_PASSWORD: kalehub
+      POSTGRES_DB: kalehub
+      POSTGRES_DB_KEYCLOAK: keycloak
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_CLIENT_ID: kalehub-app
+      KEYCLOAK_CLIENT_SECRET: dev-secret-changeme-in-env
+      KEYCLOAK_ISSUER: http://localhost:8080/realms/kalehub
+      AUTH_SECRET: ci-auth-secret-32-chars-min-here
+      NEXTAUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_API_URL: http://localhost:3001
+      NEXT_PUBLIC_WS_URL: http://localhost:3002
+      PLAYWRIGHT_BASE_URL: http://localhost:3000
+      PLAYWRIGHT_API_URL: http://localhost:3001
+      CI: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/setup-buildx-action@v3
+      - name: Start stack and wait for all services to be healthy
+        run: docker compose up -d --wait --build
+        timeout-minutes: 10
+      - name: Run Playwright E2E tests
+        run: docker compose --profile e2e run --rm playwright
+      - name: Dump container logs on failure
+        if: failure()
+        run: docker compose logs
+      - name: Tear down stack
+        if: always()
+        run: docker compose down -v

@@ -12,6 +12,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test:unit": "turbo run test:unit",
+    "format": "biome check --write .",
     "test:e2e": "docker compose --profile e2e run --rm playwright",
     "test:storybook": "pnpm --filter web test:storybook",
     "storybook": "pnpm --filter web storybook",
@@ -23,6 +24,7 @@
     "db:studio": "pnpm --filter @kalehub/db exec prisma studio"
   },
   "devDependencies": {
+    "@biomejs/biome": "^2.4.15",
     "turbo": "^2.5.4",
     "typescript": "^5.8.3"
   },

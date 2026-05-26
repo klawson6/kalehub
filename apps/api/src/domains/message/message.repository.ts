@@ -1,21 +1,21 @@
-import { prisma } from '@kalehub/db'
-import type { MessageWithSender } from './message.types.js'
+import { prisma } from '@kalehub/db';
+import type { MessageWithSender } from './message.types.js';
 
 export interface IMessageRepository {
   findByConversation(
     conversationId: string,
     opts: { before?: Date | undefined; limit: number },
-  ): Promise<MessageWithSender[]>
+  ): Promise<MessageWithSender[]>;
   create(input: {
-    conversationId: string
-    senderId: string
-    content: string
-  }): Promise<MessageWithSender>
+    conversationId: string;
+    senderId: string;
+    content: string;
+  }): Promise<MessageWithSender>;
 }
 
 const senderSelect = {
   sender: { select: { id: true, email: true, name: true } },
-} as const
+} as const;
 
 export class PrismaMessageRepository implements IMessageRepository {
   async findByConversation(
@@ -30,17 +30,17 @@ export class PrismaMessageRepository implements IMessageRepository {
       orderBy: { createdAt: 'desc' },
       take: limit + 1,
       include: senderSelect,
-    })
+    });
   }
 
   async create(input: {
-    conversationId: string
-    senderId: string
-    content: string
+    conversationId: string;
+    senderId: string;
+    content: string;
   }): Promise<MessageWithSender> {
     return prisma.message.create({
       data: input,
       include: senderSelect,
-    })
+    });
   }
 }

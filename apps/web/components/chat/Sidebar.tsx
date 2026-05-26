@@ -1,9 +1,9 @@
-import type { ConversationDTO } from '@kalehub/types'
-import { ConversationItem } from './ConversationItem'
+import type { ConversationDTO } from '@kalehub/types';
+import { ConversationItem } from './ConversationItem';
 
 interface Props {
-  conversations: ConversationDTO[]
-  currentUserId: string
+  conversations: ConversationDTO[];
+  currentUserId: string;
 }
 
 export function Sidebar({ conversations, currentUserId }: Props) {
@@ -17,13 +17,9 @@ export function Sidebar({ conversations, currentUserId }: Props) {
           <p className="px-2 py-2 text-xs text-gray-400">No conversations yet</p>
         )}
         {conversations.map((c) => (
-          <ConversationItem
-            key={c.id}
-            conversation={c}
-            currentUserId={currentUserId}
-          />
+          <ConversationItem key={c.id} conversation={c} currentUserId={currentUserId} />
         ))}
       </nav>
     </aside>
-  )
+  );
 }

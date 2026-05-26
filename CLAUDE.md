@@ -14,8 +14,14 @@ pnpm build
 # Type-check all packages
 pnpm typecheck
 
-# Lint all packages
+# Lint + format all packages (Biome)
 pnpm lint
+
+# Auto-fix formatting and safe lint issues
+pnpm format
+
+# Auto-fix including unsafe transforms (e.g. bracket → dot notation)
+pnpm exec biome check --write --unsafe .
 
 # Run unit tests across all packages
 pnpm test:unit

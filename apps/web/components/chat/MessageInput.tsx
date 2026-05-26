@@ -1,28 +1,28 @@
-'use client'
+'use client';
 
-import { useState, type FormEvent } from 'react'
+import { type FormEvent, useState } from 'react';
 
 interface Props {
-  onSend: (content: string) => Promise<void>
-  disabled?: boolean
+  onSend: (content: string) => Promise<void>;
+  disabled?: boolean;
 }
 
 export function MessageInput({ onSend, disabled = false }: Props) {
-  const [value, setValue] = useState('')
-  const [sending, setSending] = useState(false)
+  const [value, setValue] = useState('');
+  const [sending, setSending] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    const trimmed = value.trim()
-    if (!trimmed || sending) return
-    setSending(true)
+    e.preventDefault();
+    const trimmed = value.trim();
+    if (!trimmed || sending) return;
+    setSending(true);
     try {
-      await onSend(trimmed)
-      setValue('')
+      await onSend(trimmed);
+      setValue('');
     } finally {
-      setSending(false)
+      setSending(false);
     }
-  }
+  };
 
   return (
     <form
@@ -45,5 +45,5 @@ export function MessageInput({ onSend, disabled = false }: Props) {
         Send
       </button>
     </form>
-  )
+  );
 }
