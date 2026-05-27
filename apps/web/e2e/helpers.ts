@@ -4,19 +4,16 @@ export async function createKeycloakUser(email: string, password: string): Promi
   const adminUser = process.env.KEYCLOAK_ADMIN ?? 'admin';
   const adminPassword = process.env.KEYCLOAK_ADMIN_PASSWORD ?? 'admin';
 
-  const tokenRes = await fetch(
-    `${keycloakUrl}/realms/master/protocol/openid-connect/token`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      body: new URLSearchParams({
-        grant_type: 'password',
-        client_id: 'admin-cli',
-        username: adminUser,
-        password: adminPassword,
-      }).toString(),
-    },
-  );
+  const tokenRes = await fetch(`${keycloakUrl}/realms/master/protocol/openid-connect/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      grant_type: 'password',
+      client_id: 'admin-cli',
+      username: adminUser,
+      password: adminPassword,
+    }).toString(),
+  });
   if (!tokenRes.ok) throw new Error(`Admin token request failed: ${tokenRes.status}`);
   const { access_token } = (await tokenRes.json()) as { access_token: string };
 
