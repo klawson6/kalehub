@@ -10,6 +10,7 @@ export function buildCursorPage<T>(
 ): CursorPage<T> {
   const hasMore = rawItems.length > limit;
   const items = hasMore ? rawItems.slice(0, limit) : rawItems;
-  const nextCursor = hasMore ? getCursor(items[items.length - 1]!) : null;
+  const lastItem = items[items.length - 1];
+  const nextCursor = hasMore && lastItem !== undefined ? getCursor(lastItem) : null;
   return { items, nextCursor };
 }

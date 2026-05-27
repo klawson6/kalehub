@@ -2,6 +2,7 @@
 
 import type { MessageDTO } from '@kalehub/types';
 import { useCallback, useEffect, useState } from 'react';
+import { env } from '@/env';
 
 interface ChatSocket {
   emit(event: 'conversation:join', data: { conversationId: string }): void;
@@ -34,7 +35,7 @@ export function useConversation(
   const sendMessage = useCallback(
     async (content: string, accessToken: string): Promise<void> => {
       const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001'}/conversations/${conversationId}/messages`,
+        `${env.NEXT_PUBLIC_API_URL}/conversations/${conversationId}/messages`,
         {
           method: 'POST',
           headers: {

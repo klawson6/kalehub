@@ -27,6 +27,19 @@ RUN pnpm --filter api build
 FROM builder AS tester
 RUN pnpm --filter api test:unit
 
+# ─── prod-deps: production-only dependencies (no devDependencies) ─────────────
+FROM base AS prod-deps
+WORKDIR /app
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml tsconfig.base.json ./
+COPY packages/types/package.json ./packages/types/
+COPY packages/db/package.json ./packages/db/
+COPY packages/db/prisma ./packages/db/prisma
+COPY apps/api/package.json ./apps/api/
+# --ignore-scripts skips the prisma generate postinstall; we copy the generated
+# client binary from the full deps stage instead.
+RUN pnpm install --frozen-lockfile --prod --ignore-scripts
+COPY --from=deps /app/node_modules/.prisma ./node_modules/.prisma
+
 # ─── runner: minimal production image ────────────────────────────────────────
 FROM node:24-alpine AS runner
 WORKDIR /app
@@ -38,9 +51,9 @@ COPY --from=builder --chown=appuser:nodejs /app/apps/api/dist ./apps/api/dist
 COPY --from=builder --chown=appuser:nodejs /app/packages/types/dist ./packages/types/dist
 COPY --from=builder --chown=appuser:nodejs /app/packages/db/dist ./packages/db/dist
 COPY --from=builder --chown=appuser:nodejs /app/packages/db/prisma ./packages/db/prisma
-COPY --from=deps --chown=appuser:nodejs /app/node_modules ./node_modules
-COPY --from=deps --chown=appuser:nodejs /app/apps/api/node_modules ./apps/api/node_modules
-COPY --from=deps --chown=appuser:nodejs /app/packages/db/node_modules ./packages/db/node_modules
+COPY --from=prod-deps --chown=appuser:nodejs /app/node_modules ./node_modules
+COPY --from=prod-deps --chown=appuser:nodejs /app/apps/api/node_modules ./apps/api/node_modules
+COPY --from=prod-deps --chown=appuser:nodejs /app/packages/db/node_modules ./packages/db/node_modules
 
 USER appuser
 ENV PORT=3001 NODE_ENV=production

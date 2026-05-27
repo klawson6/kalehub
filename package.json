@@ -12,7 +12,7 @@
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "test:unit": "turbo run test:unit",
-    "format": "biome check --write .",
+    "lint:fix": "biome check --write .",
     "test:e2e": "docker compose --profile e2e run --rm playwright",
     "test:storybook": "pnpm --filter web test:storybook",
     "storybook": "pnpm --filter web storybook",

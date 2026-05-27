@@ -1,11 +1,11 @@
 import type { ConversationDTO } from '@kalehub/types';
 import { redirect } from 'next/navigation';
 import { Sidebar } from '@/components/chat/Sidebar';
+import { env } from '@/env';
 import { auth } from '@/lib/auth';
 
 async function fetchConversations(accessToken: string): Promise<ConversationDTO[]> {
-  const apiUrl = process.env.API_URL ?? 'http://localhost:3001';
-  const res = await fetch(`${apiUrl}/conversations`, {
+  const res = await fetch(`${env.API_URL}/conversations`, {
     headers: { Authorization: `Bearer ${accessToken}` },
     next: { revalidate: 0 },
   });

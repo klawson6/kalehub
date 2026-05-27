@@ -155,6 +155,9 @@ services:
     environment:
       PLAYWRIGHT_BASE_URL: ${PLAYWRIGHT_BASE_URL:-http://localhost:3000}
       PLAYWRIGHT_API_URL: ${PLAYWRIGHT_API_URL:-http://localhost:3001}
+      KEYCLOAK_URL: ${KEYCLOAK_URL:-http://localhost:8080}
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN:-admin}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:-admin}
       CI: ${CI:-}
 
 volumes:
